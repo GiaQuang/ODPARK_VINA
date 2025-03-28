@@ -33,7 +33,7 @@ const api_get_production_data = async () => ({
   })),
   order_progress: Array.from({ length: 22 }, (_, i) => ({
     key: i,
-    board: `B${i + 1}`,
+    board: `Line ${i + 1}`,
     total: 500 + Math.floor(Math.random() * 1000),
     produced: 200 + Math.floor(Math.random() * 400),
     balance: 300 + Math.floor(Math.random() * 600),
@@ -67,28 +67,28 @@ export default function ProductionDashboard() {
   // Cột cho bảng tiến độ đơn hàng
   const columns = [
     {
-      title: "Bảng",
+      title: "Line",
       dataIndex: "board",
       key: "board",
-      sorter: (a, b) => a.board.localeCompare(b.board),
+      sorter: (a: any, b: any) => a.board.localeCompare(b.board),
     },
     {
       title: "Tổng đơn",
       dataIndex: "total",
       key: "total",
-      sorter: (a, b) => a.total - b.total,
+      sorter: (a: any, b: any) => a.total - b.total,
     },
     {
       title: "Đã SX",
       dataIndex: "produced",
       key: "produced",
-      sorter: (a, b) => a.produced - b.produced,
+      sorter: (a: any, b: any) => a.produced - b.produced,
     },
     {
       title: "Còn lại",
       dataIndex: "balance",
       key: "balance",
-      sorter: (a, b) => a.balance - b.balance,
+      sorter: (a: any, b: any) => a.balance - b.balance,
     },
     {
       title: "Hiệu suất",
@@ -101,7 +101,7 @@ export default function ProductionDashboard() {
           format={(percent) => `${percent}%`}
         />
       ),
-      sorter: (a, b) => a.efficiency - b.efficiency,
+      sorter: (a: any, b: any) => a.efficiency - b.efficiency,
     },
   ];
 
@@ -125,7 +125,7 @@ export default function ProductionDashboard() {
     },
     xAxis: {
       type: "category",
-      data: productionData.hourly_progress.map((item) => item.hour),
+      data: productionData.hourly_progress.map((item) => item.hou),
       axisLabel: {
         color: "#fff",
       },
@@ -318,18 +318,23 @@ export default function ProductionDashboard() {
               />
             </div>
 
-            <div className="flex-1">
+            <div
+              className="flex-1 flex flex-col"
+              style={{ minHeight: "400px" }}
+            >
               <h3 className="mb-2 flex items-center">
                 <FaCalendarAlt className="mr-2" /> Tiến độ các line
               </h3>
-              <Table
-                columns={columns}
-                dataSource={productionData.order_progress}
-                size="small"
-                pagination={false}
-                scroll={{ y: 200 }}
-                className="production-table"
-              />
+              <div className="flex-1 overflow-auto">
+                <Table
+                  columns={columns}
+                  dataSource={productionData.order_progress}
+                  size="small"
+                  pagination={false}
+                  scroll={{ y: "calc(100vh - 500px)" }}
+                  className="production-table"
+                />
+              </div>
             </div>
           </div>
         </div>
