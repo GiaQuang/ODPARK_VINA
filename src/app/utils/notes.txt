@@ -1,0 +1,10 @@
+JSX: map luôn cần phải có ? trước khi map, ví dụ:
+    {
+        abc?.map( (item, idx, arr) => (
+                <div key={idx.toString()}>
+                    {item.toString()}
+                </div>
+            )
+        )
+    }
+

@@ -1,0 +1,102 @@
+--------------------------------------------------------------
+HIDE SCROLL-BAR
+    Step 1. Thêm dòng này trong global.css:
+        @layer utilities {
+            /* Hide scrollbar for Chrome, Safari and Opera */
+            .no-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+            /* Hide scrollbar for IE, Edge and Firefox */
+            .no-scrollbar {
+                -ms-overflow-style: none; /* IE and Edge */
+                scrollbar-width: none; /* Firefox */
+            }
+        }
+    Step 2: Sử dụng:
+        <div className="w-full h-42 overflow-y-scroll no-scrollbar">...</div>
+--------------------------------------------------------------
+INIT ARRAY
+    let x = Array.from(Array(n).keys(), (val, idx) => {
+        return val;
+    })
+--------------------------------------------------------------
+INSTALL ALL package in package.json, xoá gói trong file này và cập nhật thì cùng dùng lệnh này
+    npm install (or npm i) (không ghi tên gói nào cả)
+--------------------------------------------------------------
+UPDATE ALL package in package.json
+    npm update (or npm i) (không ghi tên gói nào cả)
+--------------------------------------------------------------
+TOASTIFY REACT (react-toastify): https://fkhadra.github.io/react-toastify/timer/
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+	Cho cái này vào div nào cần hiển thị <ToastContainer />
+    =>      toast.dismiss()
+			toast.info('Đang cập nhật cấu hình từ máy chủ', {
+				position: 'top-center',
+				autoClose: 1000,
+				hideProgressBar: true,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: 'dark',//light or colored
+			});
+--------------------------------------------------------------
+override toast position top-center in global.css for center of screen, should use Flip effect (override in :root)
+    :root {
+        ...
+        .Toastify__toast-container--top-center {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
+--------------------------------------------------------------
+OVERLAY SCREEN: use Spin (antd) (in main div of page)
+    import { Spin } from 'antd';
+    ...
+    <div>
+        ...
+        <Spin
+            spinning={spinning}
+            tip={<div className='text-xl'>{du_lieu}</div>}
+            size='large'
+            fullscreen
+        />
+    </div>
+--------------------------------------------------------------
+API mà có dấu / nghĩa là bắt đầu từ gốc, nếu không có dấu / nghĩa là bắt đầu từ điểm đang đứng
+=> kết luận: luôn phải dùng dấu /
+    await api_post_data(
+			'/api/tam_phat/get_machine_id_ip_status',
+			{}
+		);
+--------------------------------------------------------------
+Fix warning: missing dependency of useEffect
+    => // eslint-disable-next-line react-hooks/exhaustive-deps
+
+
+* Get key of Object
+const someObj:ObjectType = data;
+const field = 'username';
+1. This gives an error
+const temp = someObj[field];
+2. Solution 1: When the type of the object is known
+const temp = someObj[field as keyof ObjectType]
+3. Solution 2: When the type of the object is not known
+const temp = someObj[field as keyof typeof someObj]
+
+* Ép kiểu dữ liệu:
+    (res['list_data'] as []).map((item: object, idx) => {
+	    let val = new TrangThaiMay(idx + 1);
+	    val.bat_dau = item['bat_dau' as keyof object];
+	    val.ket_thuc = item['ket_thuc' as keyof object];
+	    return val;
+	})
+
+* Shadow for tailwindcss
+shadow-[0px_0px_5px_3px_#fff]
+shadow-[inset_0px_0px_5px_3px_#fff]
+
+* Sort all json package
+npx sort-package-json

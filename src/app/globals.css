@@ -1,0 +1,124 @@
+/** @format */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+nextjs-portal {
+    display: none;
+}
+:root {
+    --foreground-rgb: 0, 0, 0;
+    --background-start-rgb: 214, 219, 220;
+    --background-end-rgb: 255, 255, 255;
+    .Toastify__toast-container--top-center {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --foreground-rgb: 255, 255, 255;
+        --background-start-rgb: 0, 0, 0;
+        --background-end-rgb: 0, 0, 0;
+    }
+}
+
+body {
+    color: rgb(var(--foreground-rgb));
+    background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+}
+html {
+    overflow: scroll;
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent; /* make scrollbar transparent */
+}
+@font-face {
+    font-family: "font_LeagueGothic";
+    src: url("fonts/LeagueGothic.ttf") format("truetype"); /* other formats include: 'woff2', 'truetype, 'opentype',*/
+}
+@font-face {
+    font-family: "font_UtmHelvetIns";
+    src: url("fonts/UTM HelvetIns.ttf") format("truetype");
+}
+@font-face {
+    font-family: "font_arial";
+    src: url("fonts/arial/SVN-Arial Regular.ttf") format("truetype");
+}
+@font-face {
+    font-family: "font_arial_bold";
+    src: url("fonts/arial/SVN-Arial Bold.ttf") format("truetype");
+}
+@font-face {
+    font-family: "font_arial_italic";
+    src: url("fonts/arial/SVN-Arial Italic.ttf") format("truetype");
+}
+@font-face {
+    font-family: "font_arial_bold_italic";
+    src: url("fonts/arial/SVN-Arial Bold Italic.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "font_arial2_bold";
+    src: url("fonts/arial/SVN-Arial 2 bold.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "font_arial3_bold";
+    src: url("fonts/arial/SVN-Arial 3 bold.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "font_LED7_Round";
+    src: url("fonts/segmen7-round.ttf") format("truetype");
+}
+@font-face {
+    font-family: "font_calibri_bold";
+    src: url("fonts/calibri/bold.ttf") format("truetype");
+}
+@font-face {
+    font-family: "font_led7";
+    src: url("fonts/led7.ttf") format("truetype");
+}
+
+@layer utilities {
+    .font-calibri-bold {
+        font-family: font_calibri_bold;
+    }
+    .font-LED7-round {
+        font-family: font_LED7_Round;
+    }
+    .font-LED7 {
+        font-family: font_led7;
+    }
+    .font-LeagueGothic {
+        font-family: font_LeagueGothic;
+    }
+    .font-UtmHelvetIns {
+        font-family: font_UtmHelvetIns;
+    }
+    .font-arial {
+        font-family: font_arial;
+    }
+    .font-arial-bold {
+        font-family: font_arial_bold;
+    }
+    .font-arial2-bold {
+        font-family: font_arial2_bold;
+    }
+    .font-arial3-bold {
+        font-family: font_arial3_bold;
+    }
+    .font-arial-italic {
+        font-family: font_arial_italic;
+    }
+    .font-arial-bold-italic {
+        font-family: font_arial_bold_italic;
+    }
+}
