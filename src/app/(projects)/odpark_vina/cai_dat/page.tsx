@@ -100,7 +100,7 @@ const api_get_production_data = async () => {
 
     return {
       id,
-      tenLine: `Line ${id}`,
+      tenLine: `${id}`,
       maHang: `MH-${String(1 + index).padStart(3, "0")}`,
       tong,
       daLam,
@@ -110,6 +110,7 @@ const api_get_production_data = async () => {
       thucTeNgay,
       thucTeGio: Math.floor(Math.random() * (120 - 40) + 40),
       duKienNgay: Math.ceil((tong - daLam) / thucTeNgay),
+      gioLamViec: 8,
     };
   });
 
@@ -231,6 +232,7 @@ export default function ProductionTable() {
                   thucTeNgay: 0,
                   thucTeGio: 0,
                   duKienNgay: 0,
+                  gioLamViec: 8,
                 }
               : line
           )
@@ -347,11 +349,11 @@ export default function ProductionTable() {
           text,
           record,
           "tenLine",
-          "w-20 text-center font-bold text-lg",
+          "w-6 text-center font-bold text-lg",
           "text",
           "Nhập tên"
         ),
-      width: 100,
+      width: 40,
     },
     {
       title: <span className="font-bold text-lg pl-8">Style name</span>,
@@ -366,26 +368,9 @@ export default function ProductionTable() {
           "text",
           "Nhập mã hàng"
         ),
-      width: 150,
+      width: 160,
     },
-    {
-      title: <span className="font-bold text-lg">Efficiency</span>,
-      key: "tienDo",
-      width: 180,
-      render: (_, record: ProductionLine) => {
-        const completion = calculateCompletion(record.daLam, record.tong);
-        return (
-          <Tooltip title={`${record.daLam}/${record.tong} (${completion}%)`}>
-            <Progress
-              percent={completion}
-              size="small"
-              strokeColor={getProgressColor(completion)}
-              className="mt-1 mb-1"
-            />
-          </Tooltip>
-        );
-      },
-    },
+
     {
       title: <span className="font-bold text-lg pl-6">Total</span>,
       dataIndex: "tong",
@@ -452,91 +437,51 @@ export default function ProductionTable() {
       width: 140,
     },
     {
-      title: <span className="font-bold text-lg">Target</span>,
-      children: [
-        {
-          title: <span className="font-bold text-lg">Theo ngày</span>,
-          dataIndex: "mucTieuNgay",
-          key: "mucTieuNgay",
-          render: (value: number, record: ProductionLine) =>
-            renderEditableCell(value, record, "mucTieuNgay", "w-16 text-lg"),
-          width: 100,
-        },
-        {
-          title: <span className="font-bold text-lg">Theo giờ</span>,
-          dataIndex: "mucTieuGio",
-          key: "mucTieuGio",
-          render: (value: number, record: ProductionLine) =>
-            renderEditableCell(value, record, "mucTieuGio", "w-16 text-lg"),
-          width: 100,
-        },
-      ],
+      title: <span className="font-bold text-lg">Target (Day)</span>,
+
+      dataIndex: "mucTieuNgay",
+      key: "mucTieuNgay",
+      render: (value: number, record: ProductionLine) =>
+        renderEditableCell(value, record, "mucTieuNgay", "w-16 text-lg"),
+      width: 100,
+    },
+    {
+      title: <span className="font-bold text-lg">Working hours</span>,
+      dataIndex: "gioLamViec",
+      key: "gioLamViec",
+      render: (value: number, record: ProductionLine) => (
+        <div className="flex items-center gap-2">
+          {renderEditableCell(value, record, "gioLamViec", "w-16 text-lg")}
+          <div className="text-gray-400 text-lg">hours/day</div>
+        </div>
+      ),
+      width: 120,
     },
     {
       title: <span className="font-bold text-lg">Actual</span>,
 
-      children: [
-        {
-          title: <span className="font-bold text-lg">Theo ngày</span>,
-          dataIndex: "thucTeNgay",
-          key: "thucTeNgay",
-          render: (value: number, record: ProductionLine) => {
-            const color = getEfficiencyColor(value, record.mucTieuNgay);
-            const percentage =
-              record.mucTieuNgay > 0
-                ? Math.round((value / record.mucTieuNgay) * 100)
-                : 0;
+      dataIndex: "thucTeNgay",
+      key: "thucTeNgay",
+      render: (value: number, record: ProductionLine) => {
+        const color = getEfficiencyColor(value, record.mucTieuNgay);
+        const percentage =
+          record.mucTieuNgay > 0
+            ? Math.round((value / record.mucTieuNgay) * 100)
+            : 0;
 
-            return (
-              <div className="flex items-center">
-                {renderEditableCell(
-                  value,
-                  record,
-                  "thucTeNgay",
-                  "w-16 text-lg"
-                )}
-                <Tooltip title={`${percentage}% so với mục tiêu`}>
-                  <div
-                    className="w-1 h-6 ml-2 rounded-sm"
-                    style={{ backgroundColor: color }}
-                  ></div>
-                </Tooltip>
-              </div>
-            );
-          },
-          width: 120,
-        },
-        {
-          title: <span className="font-bold text-lg">Theo giờ</span>,
-          dataIndex: "thucTeGio",
-          key: "thucTeGio",
-          render: (value: number, record: ProductionLine) => {
-            const color = getEfficiencyColor(value, record.mucTieuGio);
-            const percentage =
-              record.mucTieuGio > 0
-                ? Math.round((value / record.mucTieuGio) * 100)
-                : 0;
-
-            return (
-              <div className="flex items-center">
-                {renderEditableCell(
-                  value,
-                  record,
-                  "thucTeGio",
-                  "w-16 - text-lg"
-                )}
-                <Tooltip title={`${percentage}% so với mục tiêu`}>
-                  <div
-                    className="w-1 h-6 ml-2 rounded-sm"
-                    style={{ backgroundColor: color }}
-                  ></div>
-                </Tooltip>
-              </div>
-            );
-          },
-          width: 120,
-        },
-      ],
+        return (
+          <div className="flex items-center">
+            {renderEditableCell(value, record, "thucTeNgay", "w-16 text-lg")}
+            <Tooltip title={`${percentage}% so với mục tiêu`}>
+              <div
+                className="w-1 h-6 ml-2 rounded-sm"
+                style={{ backgroundColor: color }}
+              ></div>
+            </Tooltip>
+          </div>
+        );
+      },
+      width: 120,
     },
     {
       title: <span className="font-bold text-lg">Reset</span>,
