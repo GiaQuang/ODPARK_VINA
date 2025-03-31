@@ -106,9 +106,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
 
           <footer className="flex h-8 shrink-0 border-t-4 border-[#383749] justify-between px-4 text-gray-400 text-sm items-center">
+<<<<<<< HEAD
             <div>data left</div>
             <div>data center</div>
             <div>data right</div>
+=======
+            {/* <div>data left</div>
+            <div>data center</div>
+            <div>data right</div> */}
+>>>>>>> Mr.Trung
           </footer>
         </div>
       </div>
@@ -118,4 +124,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </NoSsr>
     </div>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> Mr.Trung
