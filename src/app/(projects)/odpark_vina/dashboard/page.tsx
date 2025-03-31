@@ -14,10 +14,10 @@ import {
 } from "react-icons/fa";
 import { GiProgression } from "react-icons/gi";
 
-// Mock API functions - Thay bằng API thực tế của bạn
+// Mock API functions
 const api_get_production_data = async () => ({
   total_device: 22,
-  device_active: 22,
+  device_active: 20,
   total_orders: 1500,
   produced_qty: 872,
   today_target: 120,
@@ -58,11 +58,23 @@ export default function ProductionDashboard() {
   });
 
   const [refreshInterval, setRefreshInterval] = useState<number | null>(5000);
+  const [chartMode, setChartMode] = useState<"line" | "hour">("line");
 
   useInterval(async () => {
     const data = await api_get_production_data();
     setProductionData(data);
   }, refreshInterval);
+
+  // Tạo dữ liệu giả lập cho chế độ giờ (số lượng giảm đi 50%)
+  const hourlyLineData = productionData.order_progress.map((item) => ({
+    ...item,
+    produced: Math.floor(item.produced * 0.5),
+    total: Math.floor(item.total * 0.5),
+  }));
+
+  // Lựa chọn dữ liệu theo chế độ
+  const currentData =
+    chartMode === "hour" ? hourlyLineData : productionData.order_progress;
 
   // Cột cho bảng tiến độ đơn hàng
   const columns = [
@@ -94,7 +106,7 @@ export default function ProductionDashboard() {
       title: "Hiệu suất",
       dataIndex: "efficiency",
       key: "efficiency",
-      render: (value) => (
+      render: (value: number) => (
         <Progress
           percent={value}
           status={value > 85 ? "success" : value > 70 ? "normal" : "exception"}
@@ -105,12 +117,24 @@ export default function ProductionDashboard() {
     },
   ];
 
-  // Biểu đồ so sánh Target vs Actual theo giờ
-  const hourlyChartOption = {
+  // Biểu đồ so sánh Target vs Actual
+  const lineChartOption = {
     tooltip: {
       trigger: "axis",
       axisPointer: {
         type: "shadow",
+      },
+      formatter: (params: any) => {
+        const target = params[0].value;
+        const actual = params[1].value;
+        const line = params[0].axisValue;
+        const efficiency = ((actual / target) * 100).toFixed(1);
+        return `
+          <strong>${line}</strong><br/>
+          Target: ${target}<br/>
+          Actual: ${actual}<br/>
+          Hiệu suất: ${efficiency}%
+        `;
       },
     },
     legend: {
@@ -125,14 +149,27 @@ export default function ProductionDashboard() {
     },
     xAxis: {
       type: "category",
-      data: productionData.hourly_progress.map((item) => item.hou),
+      data: currentData.map((item) => `${item.board}`),
       axisLabel: {
         color: "#fff",
+        rotate: 45,
+        interval: 0,
+      },
+      nameTextStyle: {
+        color: "#fff",
+        fontWeight: "bold",
+        fontSize: 12,
+        padding: [10, 0, 0, 0],
       },
     },
     yAxis: {
       type: "value",
       name: "Số lượng",
+      nameTextStyle: {
+        color: "#fff",
+        fontWeight: "bold",
+        fontSize: 12,
+      },
       axisLabel: {
         color: "#fff",
       },
@@ -146,17 +183,42 @@ export default function ProductionDashboard() {
       {
         name: "Target",
         type: "bar",
-        data: productionData.hourly_progress.map((item) => item.target),
+        barWidth: "30%",
+        data: currentData.map((item) => item.total),
         itemStyle: {
           color: "#1890ff",
+          borderRadius: [2, 2, 0, 0],
+        },
+        label: {
+          show: false,
         },
       },
       {
         name: "Actual",
         type: "bar",
-        data: productionData.hourly_progress.map((item) => item.actual),
+        barWidth: "30%",
+        data: currentData.map((item) => item.produced),
         itemStyle: {
           color: "#52c41a",
+          borderRadius: [2, 2, 0, 0],
+        },
+        label: {
+          show: false,
+        },
+      },
+    ],
+    dataZoom: [
+      {
+        type: "slider",
+        show: false,
+        xAxisIndex: [0],
+        filterMode: "filter",
+        height: 10,
+        bottom: 30,
+        start: 0,
+        end: 100,
+        textStyle: {
+          color: "#fff",
         },
       },
     ],
@@ -170,17 +232,19 @@ export default function ProductionDashboard() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-5 gap-4">
-        <div className="bg-blue-800 p-4 rounded-lg shadow-lg flex items-center">
+        <div className="bg-amber-500 p-4 rounded-lg shadow-lg flex items-center">
           <FaBoxes className="text-4xl mr-4" />
           <div>
             <div className="text-lg opacity-80">Số line đang hoạt động</div>
             <div className="text-3xl font-bold">
-              {productionData.device_active}
+              {productionData.device_active} / {productionData.total_device}
             </div>
             <Progress
               percent={
-                (productionData.device_active / productionData.total_device) *
-                100
+                +(
+                  (productionData.device_active / productionData.total_device) *
+                  100
+                ).toFixed(2)
               }
               status="active"
               strokeColor="#52c41a"
@@ -188,7 +252,6 @@ export default function ProductionDashboard() {
           </div>
         </div>
 
-        {/* Tổng đơn hàng */}
         <div className="bg-blue-800 p-4 rounded-lg shadow-lg flex items-center">
           <FaBoxes className="text-4xl mr-4" />
           <div>
@@ -197,36 +260,36 @@ export default function ProductionDashboard() {
               {productionData.produced_qty} / {productionData.total_orders}
             </div>
             <Progress
-              percent={(
-                (productionData.produced_qty / productionData.total_orders) *
-                100
-              ).toFixed(2)}
+              percent={
+                +(
+                  (productionData.produced_qty / productionData.total_orders) *
+                  100
+                ).toFixed(2)
+              }
               status="active"
               strokeColor="#52c41a"
             />
           </div>
         </div>
 
-        {/* QC Passed */}
         <div className="bg-purple-800 p-4 rounded-lg shadow-lg flex items-center">
           <FaClipboardCheck className="text-4xl mr-4" />
           <div>
             <div className="text-lg opacity-80">Đã kiểm tra (QC Passed)</div>
             <div className="text-3xl font-bold">{productionData.qc_passed}</div>
             <Progress
-              percent={parseFloat(
-                (
+              percent={
+                +(
                   (productionData.qc_passed / productionData.produced_qty) *
                     100 || 0
                 ).toFixed(2)
-              )}
+              }
               status="normal"
               strokeColor="#722ed1"
             />
           </div>
         </div>
 
-        {/* Sản lượng hôm nay */}
         <div className="bg-green-800 p-4 rounded-lg shadow-lg flex items-center">
           <FaIndustry className="text-4xl mr-4" />
           <div>
@@ -248,7 +311,6 @@ export default function ProductionDashboard() {
           </div>
         </div>
 
-        {/* Hiệu suất */}
         <div className="bg-orange-800 p-4 rounded-lg shadow-lg flex items-center">
           <GiProgression className="text-4xl mr-4" />
           <div>
@@ -274,14 +336,43 @@ export default function ProductionDashboard() {
       {/* Biểu đồ và bảng dữ liệu */}
       <div className="flex-1 grid grid-cols-3 gap-4">
         {/* Biểu đồ Target vs Actual */}
-        <div className="col-span-2 bg-gray-800 p-4 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4 flex items-center">
-            <FaTachometerAlt className="mr-2" /> TIẾN ĐỘ SẢN XUẤT THEO GIỜ
-          </h2>
-          <ReactECharts
-            option={hourlyChartOption}
-            style={{ height: "100%", width: "100%" }}
-          />
+        <div
+          className="col-span-2 bg-gray-800 p-4 rounded-lg flex flex-col"
+          style={{ height: "calc(100vh - 200px)" }}
+        >
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold flex items-center">
+              <FaTachometerAlt className="mr-2" />
+              {chartMode === "line"
+                ? "BẢNG THEO DÕI TIẾN ĐỘ CÁC LINE"
+                : "TIẾN ĐỘ THEO GIỜ (50% SẢN LƯỢNG)"}
+            </h2>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setChartMode("line")}
+                className={`px-3 py-1 rounded ${
+                  chartMode === "line" ? "bg-blue-600" : "bg-gray-600"
+                }`}
+              >
+                Theo Ngày
+              </button>
+              <button
+                onClick={() => setChartMode("hour")}
+                className={`px-3 py-1 rounded ${
+                  chartMode === "hour" ? "bg-blue-600" : "bg-gray-600"
+                }`}
+              >
+                Theo Giờ
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1">
+            <ReactECharts
+              option={lineChartOption}
+              style={{ height: "100%", width: "100%" }}
+            />
+          </div>
         </div>
 
         {/* Thông tin tổng quan */}
@@ -296,10 +387,13 @@ export default function ProductionDashboard() {
                 <span className="font-bold">{productionData.balance}</span>
               </div>
               <Progress
-                percent={(
-                  (productionData.produced_qty / productionData.total_orders) *
-                  100
-                ).toFixed(2)}
+                percent={
+                  +(
+                    (productionData.produced_qty /
+                      productionData.total_orders) *
+                    100
+                  ).toFixed(2)
+                }
                 status="active"
                 strokeColor="#52c41a"
               />
@@ -328,7 +422,7 @@ export default function ProductionDashboard() {
               <div className="flex-1 overflow-auto">
                 <Table
                   columns={columns}
-                  dataSource={productionData.order_progress}
+                  dataSource={currentData}
                   size="small"
                   pagination={false}
                   scroll={{ y: "calc(100vh - 500px)" }}
