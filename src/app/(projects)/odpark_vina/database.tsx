@@ -51,3 +51,18 @@ export type TYPE_NUOC = {
     last_ts?: number;
     last_dt?: string;
 }
+export type TYPE_BANG = {
+    id: number;
+    name?: string;
+    line?:number;
+    total?: number;// đơn vị V
+    device_active?: number;// đơn vị V
+    total_product?: number;// đơn vị V
+    produced_qty?: number;// đơn vị A
+    today_target?: number;// đơn vị A
+    today_actual?: number;// đơn vị A
+    balance?: number;//total W, đơn vị kW
+    qc_passed?: number;//đơn vị VAr
+    enable?: number;
+    efficient?: number;
+}

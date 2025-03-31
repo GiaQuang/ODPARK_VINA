@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import { FaTableCellsLarge } from "react-icons/fa6";
+import { FaTableCellsLarge} from "react-icons/fa6";
 import {
   HomeOutlined,
   MailOutlined,
@@ -14,6 +14,8 @@ import {
   LeftCircleOutlined,
   RightCircleOutlined,
 } from "@ant-design/icons";
+import { PiTableFill } from "react-icons/pi";
+import { TbListDetails } from "react-icons/tb";
 import { MdOutlineElectricBolt } from "react-icons/md";
 import { IoWaterOutline } from "react-icons/io5";
 import { LuLayoutDashboard } from "react-icons/lu";
@@ -37,9 +39,16 @@ export default function MyMenu({ set_is_show }: { set_is_show: Function }) {
     },
     {
       key: "detail",
-      icon: <MailOutlined style={{ fontSize: 24 }} />,
+      icon: <TbListDetails  style={{ fontSize: 24 }} />,
       label: <div className="text-sm">{`Details`}</div>,
       link: `/odpark_vina/detail`,
+      children: [],
+    },
+    {
+      key: "table",
+      icon: <PiTableFill  style={{ fontSize: 24 }} />,
+      label: <div className="text-sm">{`Table`}</div>,
+      link: `/odpark_vina/table`,
       children: [],
     },
     {
