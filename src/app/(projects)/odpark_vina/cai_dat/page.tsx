@@ -36,61 +36,6 @@ interface ProductionLine {
 }
 
 // API giả định để lấy và cập nhật dữ liệu
-// const api_get_production_data = async () => {
-//   // Ở đây bạn sẽ gọi API thực tế
-//   // Trả về dữ liệu mẫu cho mục đích demo
-//   return [
-//     {
-//       id: "1",
-//       tenLine: "Line 1",
-//       maHang: "SP001",
-//       tong: 1000,
-//       daLam: 350,
-//       daDat: 300,
-//       mucTieuNgay: 500,
-//       mucTieuGio: 60,
-//       thucTeNgay: 350,
-//       thucTeGio: 45,
-//     },
-//     {
-//       id: "2",
-//       tenLine: "Line 2",
-//       maHang: "SP002",
-//       tong: 800,
-//       daLam: 400,
-//       daDat: 390,
-//       mucTieuNgay: 400,
-//       mucTieuGio: 50,
-//       thucTeNgay: 400,
-//       thucTeGio: 52,
-//     },
-//     {
-//       id: "3",
-//       tenLine: "Line 3",
-//       maHang: "SP003",
-//       tong: 1200,
-//       daLam: 850,
-//       daDat: 820,
-//       mucTieuNgay: 800,
-//       mucTieuGio: 100,
-//       thucTeNgay: 850,
-//       thucTeGio: 106,
-//     },
-//     {
-//       id: "4",
-//       tenLine: "Line 4",
-//       maHang: "SP003",
-//       tong: 1200,
-//       daLam: 850,
-//       daDat: 820,
-//       mucTieuNgay: 800,
-//       mucTieuGio: 100,
-//       thucTeNgay: 850,
-//       thucTeGio: 106,
-//     },
-//   ];
-// };
-
 const api_get_production_data = async () => {
   const randomData = Array.from({ length: 22 }, (_, index) => {
     const id = (index + 1).toString();
@@ -291,56 +236,53 @@ export default function ProductionTable() {
     const isNumber = type === "number";
 
     return (
-      <div className="flex flex-row items-center gap-1 group">
-        <div
-          className={`font-medium text-right ${width} ${
+      <div className="flex items-center justify-center gap-2 group">
+        <span
+          className={`font-medium text-center text-xl${
             isNumber ? "text-cyan-300" : "text-orange-300"
           }`}
         >
           {isNumber ? value.toLocaleString("vi-VN") : value}
-        </div>
-
+        </span>
         {isEditing ? (
-          <Input
+          <input
             autoFocus
-            className="w-20 bg-gray-700 text-white border-blue-400 rounded"
-            placeholder={placeholder}
-            size="small"
+            className="w-20 p-1 bg-gray-800 border border-blue-400 rounded text-white"
             defaultValue={value}
             onBlur={() => setEditingField(null)}
-            onPressEnter={(e: React.KeyboardEvent<HTMLInputElement>) => {
-              const inputValue = (e.target as HTMLInputElement).value;
-              let parsedValue;
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                const inputValue = (e.target as HTMLInputElement).value;
+                let parsedValue;
 
-              if (isNumber) {
-                parsedValue = Number.parseFloat(inputValue);
-                if (isNaN(parsedValue)) {
-                  toast.error("Giá trị không hợp lệ");
-                  return;
+                if (isNumber) {
+                  parsedValue = Number.parseFloat(inputValue);
+                  if (isNaN(parsedValue)) {
+                    toast.error("Giá trị không hợp lệ");
+                    return;
+                  }
+                } else {
+                  parsedValue = inputValue;
                 }
-              } else {
-                parsedValue = inputValue;
-              }
 
-              handleUpdateValue(record.id, field, parsedValue);
+                handleUpdateValue(record.id, field, parsedValue);
+              }
             }}
           />
         ) : (
-          <Tooltip title="Nhấp để chỉnh sửa">
-            <EditOutlined
-              className="text-gray-400 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={() => setEditingField({ id: record.id, field })}
-            />
-          </Tooltip>
+          <EditOutlined
+            className="text-gray-400 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={() => setEditingField({ id: record.id, field })}
+          />
         )}
       </div>
     );
   };
 
-  // Định nghĩa cột cho bảng
+  // Định nghĩa cột cho bảng với độ rộng cố định
   const columns = [
     {
-      title: <span className="font-bold text-lg">Line</span>,
+      title: <span className="font-bold text-xl">Bảng</span>,
       align: "center",
       dataIndex: "tenLine",
       key: "tenLine",
@@ -349,48 +291,55 @@ export default function ProductionTable() {
           text,
           record,
           "tenLine",
-          "w-6 text-center font-bold text-lg",
+          "w-4 font-bold text-xl",
           "text",
           "Nhập tên"
         ),
       width: 40,
+      className: "column-width-40",
     },
     {
-      title: <span className="font-bold text-lg pl-8">Style name</span>,
+      title: <span className="font-bold text-xl ">Mã hàng</span>,
       dataIndex: "maHang",
       key: "maHang",
+      align: "center",
       render: (text: string, record: ProductionLine) =>
         renderEditableCell(
           text,
           record,
           "maHang",
-          "w-20 text-center font-bold text-lg",
+          "w-20 font-bold text-lg",
           "text",
           "Nhập mã hàng"
         ),
-      width: 160,
+      width: 80,
+      className: "column-width-80",
     },
-
     {
-      title: <span className="font-bold text-lg pl-6">Total</span>,
+      title: <span className="font-bold text-xl">Tổng đơn hàng</span>,
       dataIndex: "tong",
       key: "tong",
+      align: "center",
       render: (value: number, record: ProductionLine) =>
         renderEditableCell(value, record, "tong", "w-16 text-lg"),
-      width: 120,
+      width: 100,
+      className: "column-width-100",
     },
     {
-      title: <span className="font-bold text-lg">Product Qty</span>,
+      title: <span className="font-bold text-xl">Đã làm</span>,
       dataIndex: "daLam",
       key: "daLam",
+      align: "center",
       render: (value: number, record: ProductionLine) =>
         renderEditableCell(value, record, "daLam", "w-16 text-lg"),
-      width: 120,
+      width: 100,
+      className: "column-width-100",
     },
     {
-      title: <span className="font-bold text-lg pl-2">Quality control</span>,
+      title: <span className="font-bold text-xl">Đã đạt</span>,
       dataIndex: "daDat",
       key: "daDat",
+      align: "center",
       render: (value: number, record: ProductionLine) => {
         const percentage =
           record.daLam > 0
@@ -400,21 +349,19 @@ export default function ProductionTable() {
           percentage >= 98 ? "success" : percentage >= 90 ? "warning" : "error";
 
         return (
-          <div className="flex items-center gap-2">
-            {renderEditableCell(value, record, "daDat", "w-16 text-lg")}
-            <Tooltip title={`Tỷ lệ đạt: ${percentage}%`}>
-              <Badge status={status} text={`${percentage}%`} className="ml-1" />
-            </Tooltip>
+          <div className="flex items-center justify-center gap-2">
+            {renderEditableCell(value, record, "daDat", "w-8 text-lg")}
           </div>
         );
       },
-      width: 140,
+      width: 100,
+      className: "column-width-100",
     },
     {
-      title: <span className="font-bold text-lg">Product total day</span>,
+      title: <span className="font-bold text-xl">Tổng số ngày</span>,
       key: "tongSoNgay",
+      align: "center",
       render: (_, record: ProductionLine) => {
-        // Ưu tiên sử dụng giá trị duKienNgay nếu có, nếu không thì tính toán
         const days = record.duKienNgay ?? calculateTotalDays(record);
         let color = "#52c41a";
 
@@ -427,41 +374,45 @@ export default function ProductionTable() {
           <Tooltip
             title={`Còn lại: ${remaining.toLocaleString("vi-VN")} sản phẩm`}
           >
-            <div className="flex items-center gap-2">
-              {renderEditableCell(days, record, "duKienNgay", "w-16 text-lg")}
-              <div className="text-gray-400 text-xs">ngày</div>
+            <div className="flex items-center justify-center gap-2">
+              {renderEditableCell(days, record, "duKienNgay", "w-16 text-xl")}
+              {/* <div className="text-gray-400 text-xs">ngày</div> */}
             </div>
           </Tooltip>
         );
       },
-      width: 140,
+      width: 100,
+      className: "column-width-100",
     },
     {
-      title: <span className="font-bold text-lg">Target (Day)</span>,
-
+      title: <span className="font-bold text-xl">Mục tiêu ngày</span>,
       dataIndex: "mucTieuNgay",
       key: "mucTieuNgay",
+      align: "center",
       render: (value: number, record: ProductionLine) =>
         renderEditableCell(value, record, "mucTieuNgay", "w-16 text-lg"),
       width: 100,
+      className: "column-width-100",
     },
     {
-      title: <span className="font-bold text-lg">Working hours</span>,
+      title: <span className="font-bold text-xl">Số giờ làm/ngày</span>,
       dataIndex: "gioLamViec",
       key: "gioLamViec",
+      align: "center",
       render: (value: number, record: ProductionLine) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-2">
           {renderEditableCell(value, record, "gioLamViec", "w-16 text-lg")}
-          <div className="text-gray-400 text-lg">hours/day</div>
+          {/* <div className="text-gray-400 text-lg">giờ/ngày</div> */}
         </div>
       ),
-      width: 120,
+      width: 100,
+      className: "column-width-100",
     },
     {
-      title: <span className="font-bold text-lg">Actual</span>,
-
+      title: <span className="font-bold text-xl">Thực tế ngày</span>,
       dataIndex: "thucTeNgay",
       key: "thucTeNgay",
+      align: "center",
       render: (value: number, record: ProductionLine) => {
         const color = getEfficiencyColor(value, record.mucTieuNgay);
         const percentage =
@@ -470,7 +421,7 @@ export default function ProductionTable() {
             : 0;
 
         return (
-          <div className="flex items-center">
+          <div className="flex items-center justify-center gap-2">
             {renderEditableCell(value, record, "thucTeNgay", "w-16 text-lg")}
             <Tooltip title={`${percentage}% so với mục tiêu`}>
               <div
@@ -481,12 +432,14 @@ export default function ProductionTable() {
           </div>
         );
       },
-      width: 120,
+      width: 100,
+      className: "column-width-100",
     },
     {
-      title: <span className="font-bold text-lg">Reset</span>,
+      title: <span className="font-bold text-xl">Reset</span>,
       key: "reset",
       fixed: "right",
+      align: "center",
       render: (_, record: ProductionLine) => (
         <Popconfirm
           title="Reset dữ liệu"
@@ -509,7 +462,7 @@ export default function ProductionTable() {
         </Popconfirm>
       ),
       width: 100,
-      align: "center",
+      className: "column-width-100",
     },
   ];
 
@@ -541,6 +494,7 @@ export default function ProductionTable() {
             // Thêm style cho border cell
             cellPaddingBlock: 12, // Tăng padding để các ô rộng hơn
             cellBorderColor: "#4B5563", // Màu đường viền cell đậm hơn
+            fontSize: 18,
           },
         },
       }}
@@ -554,17 +508,6 @@ export default function ProductionTable() {
                   }
                   `}
       >
-        <div className="flex justify-between items-center mb-2 px-2">
-          <div className="flex gap-4 items-center">
-            <div className="flex items-center">
-              <Badge status={isConnected ? "processing" : "error"} />
-              <span className="ml-2 text-sm text-gray-400">
-                {isConnected ? "Đã kết nối" : "Mất kết nối"}
-              </span>
-            </div>
-          </div>
-        </div>
-
         <div
           className={`text-center py-3 ${
             !isConnected
@@ -575,12 +518,53 @@ export default function ProductionTable() {
           <div className="text-3xl font-bold tracking-wider mb-1">
             {!isConnected ? `MẤT KẾT NỐI ĐẾN SERVER` : `BẢNG THEO DÕI SẢN XUẤT`}
           </div>
-          {/* {isConnected && (
-            <div className="text-sm text-gray-400 font-normal">
-              Dữ liệu được cập nhật theo thời gian thực
-            </div>
-          )} */}
         </div>
+
+        <style jsx global>{`
+          /* CSS để đảm bảo độ rộng cột được giữ nguyên */
+          .column-width-40 {
+            width: 40px !important;
+            min-width: 40px !important;
+            max-width: 40px !important;
+          }
+          .column-width-70 {
+            width: 70px !important;
+            min-width: 70px !important;
+            max-width: 70px !important;
+          }
+          .column-width-80 {
+            width: 80px !important;
+            min-width: 80px !important;
+            max-width: 80px !important;
+          }
+          .column-width-100 {
+            width: 100px !important;
+            min-width: 100px !important;
+            max-width: 100px !important;
+          }
+          .column-width-120 {
+            width: 120px !important;
+            min-width: 120px !important;
+            max-width: 120px !important;
+          }
+          .column-width-140 {
+            width: 140px !important;
+            min-width: 140px !important;
+            max-width: 140px !important;
+          }
+          /* Đảm bảo table không bị co lại */
+          .ant-table table {
+            table-layout: fixed !important;
+            width: auto !important;
+          }
+          /* Ngăn không cho các cột thay đổi kích thước khi resize window */
+          .ant-table-thead > tr > th,
+          .ant-table-tbody > tr > td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        `}</style>
 
         <div className="flex-1 overflow-auto rounded-lg shadow-xl">
           <Table
@@ -597,10 +581,12 @@ export default function ProductionTable() {
             }
             sticky
             scroll={{ x: "max-content" }}
-            // Thêm CSS tùy chỉnh cho bảng
+            // Thiết lập table-layout: fixed để đảm bảo độ rộng cột không thay đổi
+            tableLayout="fixed"
             style={{
               border: "2px solid #4B5563", // Border ngoài cùng đậm hơn
               borderCollapse: "collapse",
+              width: "auto", // Đảm bảo bảng không bị co lại
             }}
           />
         </div>
