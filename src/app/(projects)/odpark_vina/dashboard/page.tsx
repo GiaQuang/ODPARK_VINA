@@ -378,10 +378,10 @@ export default function ProductionDashboard() {
         {/* Thông tin tổng quan */}
         <div className="bg-gray-800 p-4 rounded-lg flex flex-col">
           <h2 className="text-xl font-semibold mb-4 flex items-center">
-            <FaBalanceScale className="mr-2" /> TỔNG QUAN ĐƠN HÀNG
+            <FaBalanceScale className="mr-2" /> TIẾN ĐỘ CÁC BẢNG
           </h2>
           <div className="space-y-4 flex-1">
-            <div>
+            {/* <div>
               <div className="flex justify-between mb-1">
                 <span>Số lượng còn lại:</span>
                 <span className="font-bold">{productionData.balance}</span>
@@ -397,9 +397,9 @@ export default function ProductionDashboard() {
                 status="active"
                 strokeColor="#52c41a"
               />
-            </div>
+            </div> */}
 
-            <div>
+            {/* <div>
               <div className="flex justify-between mb-1">
                 <span>Số ngày thực hiện:</span>
                 <span className="font-bold">
@@ -410,22 +410,22 @@ export default function ProductionDashboard() {
                 percent={(productionData.production_days / 30) * 100}
                 format={() => `${productionData.production_days}/30 ngày`}
               />
-            </div>
+            </div> */}
 
             <div
               className="flex-1 flex flex-col"
               style={{ minHeight: "400px" }}
             >
-              <h3 className="mb-2 flex items-center">
+              {/* <h3 className="mb-2 flex items-center">
                 <FaCalendarAlt className="mr-2" /> Tiến độ các line
-              </h3>
+              </h3> */}
               <div className="flex-1 overflow-auto">
                 <Table
                   columns={columns}
                   dataSource={currentData}
                   size="small"
                   pagination={false}
-                  scroll={{ y: "calc(100vh - 500px)" }}
+                  scroll={{ y: "calc(100vh - 350px)" }}
                   className="production-table"
                 />
               </div>
