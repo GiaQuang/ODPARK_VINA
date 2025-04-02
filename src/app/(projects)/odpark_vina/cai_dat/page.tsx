@@ -516,7 +516,7 @@ export default function ProductionTable() {
           }`}
         >
           <div className="text-3xl font-bold tracking-wider mb-1">
-            {!isConnected ? `MẤT KẾT NỐI ĐẾN SERVER` : `BẢNG THEO DÕI SẢN XUẤT`}
+            {!isConnected ? `MẤT KẾT NỐI ĐẾN SERVER` : `BẢNG CÀI ĐẶT SẢN XUẤT`}
           </div>
         </div>
 
