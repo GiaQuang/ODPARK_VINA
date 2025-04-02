@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import { FaTableCellsLarge} from "react-icons/fa6";
+import { FaTableCellsLarge } from "react-icons/fa6";
 import {
   HomeOutlined,
   MailOutlined,
@@ -33,21 +33,21 @@ export default function MyMenu({ set_is_show }: { set_is_show: Function }) {
     {
       key: "/odpark_vina/dashboard",
       icon: <LuLayoutDashboard style={{ fontSize: 24 }} />,
-      label: <div className="text-sm"> {`Dashboard`}</div>,
+      label: <div className="text-sm"> {`Thông tin chung`}</div>,
       link: "/odpark_vina/dashboard",
       children: [],
     },
     {
       key: "detail",
-      icon: <TbListDetails  style={{ fontSize: 24 }} />,
-      label: <div className="text-sm">{`Details`}</div>,
+      icon: <TbListDetails style={{ fontSize: 24 }} />,
+      label: <div className="text-sm">{`Chi tiết`}</div>,
       link: `/odpark_vina/detail`,
       children: [],
     },
     {
       key: "table",
-      icon: <PiTableFill  style={{ fontSize: 24 }} />,
-      label: <div className="text-sm">{`Table`}</div>,
+      icon: <PiTableFill style={{ fontSize: 24 }} />,
+      label: <div className="text-sm">{`Thiết bị`}</div>,
       link: `/odpark_vina/table`,
       children: [],
     },

@@ -12,6 +12,8 @@ import {
   Progress,
   Button,
   Popconfirm,
+  Switch,
+  Select,
 } from "antd";
 import { toast } from "react-toastify";
 import {
@@ -33,6 +35,9 @@ interface ProductionLine {
   thucTeNgay: number;
   thucTeGio: number;
   duKienNgay?: number;
+  gioLamViec: number;
+  heSoCong: number;
+  cheDoHoatDong: "auto" | "manual";
 }
 
 // API giả định để lấy và cập nhật dữ liệu
@@ -56,6 +61,8 @@ const api_get_production_data = async () => {
       thucTeGio: Math.floor(Math.random() * (120 - 40) + 40),
       duKienNgay: Math.ceil((tong - daLam) / thucTeNgay),
       gioLamViec: 8,
+      heSoCong: 1 + Math.round(Math.random() * 30), // Giá trị ngẫu nhiên từ 1 đến 30
+      cheDoHoatDong: Math.random() > 0.5 ? "auto" : "manual", // Ngẫu nhiên auto hoặc manual
     };
   });
 
@@ -63,14 +70,11 @@ const api_get_production_data = async () => {
 };
 
 const api_update_field = async (id: string, field: string, value: any) => {
-  // Ở đây bạn sẽ gọi API thực tế để cập nhật giá trị
   console.log(`Cập nhật ${field} = ${value} cho id ${id}`);
   return true;
 };
 
-// API giả định để reset dữ liệu của một dòng
 const api_reset_line = async (id: string) => {
-  // Ở đây bạn sẽ gọi API thực tế để reset dữ liệu
   console.log(`Reset dữ liệu cho line id ${id}`);
   return true;
 };
@@ -86,12 +90,10 @@ export default function ProductionTable() {
   } | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  // Hiệu ứng nhấp nháy
   useInterval(() => {
     setCounter((p) => p + 1);
   }, 500);
 
-  // Khởi tạo dữ liệu ban đầu
   useEffect(() => {
     async function loadData() {
       try {
@@ -107,7 +109,6 @@ export default function ProductionTable() {
     loadData();
   }, []);
 
-  // Cập nhật dữ liệu theo chu kỳ
   useInterval(async () => {
     setCycleRfStatus(null);
     try {
@@ -123,7 +124,6 @@ export default function ProductionTable() {
     }
   }, cycle_rt_status);
 
-  // Xử lý cập nhật giá trị
   const handleUpdateValue = async (id: string, field: string, value: any) => {
     try {
       toast.dismiss();
@@ -135,7 +135,6 @@ export default function ProductionTable() {
           icon: <CheckCircleOutlined style={{ color: "#52c41a" }} />,
           autoClose: 1500,
         });
-        // Cập nhật state local
         setProductionData((prevData) =>
           prevData.map((line) =>
             line.id === id ? { ...line, [field]: value } : line
@@ -152,7 +151,6 @@ export default function ProductionTable() {
     }
   };
 
-  // Xử lý reset dòng
   const handleResetLine = async (id: string) => {
     try {
       toast.dismiss();
@@ -178,6 +176,8 @@ export default function ProductionTable() {
                   thucTeGio: 0,
                   duKienNgay: 0,
                   gioLamViec: 8,
+                  heSoCong: 1.0,
+                  cheDoHoatDong: "manual",
                 }
               : line
           )
@@ -191,19 +191,44 @@ export default function ProductionTable() {
     }
   };
 
-  // Tính toán tỷ lệ hoàn thành
+  const handleToggleMode = async (id: string, checked: boolean) => {
+    const newMode = checked ? "auto" : "manual";
+    try {
+      toast.dismiss();
+      toast.info(`Đang chuyển sang chế độ ${newMode.toUpperCase()}`, {
+        autoClose: 1000,
+      });
+      const result = await api_update_field(id, "cheDoHoatDong", newMode);
+      toast.dismiss();
+      if (result === true) {
+        toast.success(`Đã chuyển sang chế độ ${newMode.toUpperCase()}`, {
+          icon: <CheckCircleOutlined style={{ color: "#52c41a" }} />,
+          autoClose: 1500,
+        });
+        setProductionData((prevData) =>
+          prevData.map((line) =>
+            line.id === id ? { ...line, cheDoHoatDong: newMode } : line
+          )
+        );
+      } else {
+        toast.error("Cập nhật thất bại");
+      }
+    } catch (error) {
+      toast.error("Lỗi server");
+      console.error("Lỗi khi cập nhật chế độ:", error);
+    }
+  };
+
   const calculateCompletion = (daLam: number, tong: number) => {
     return Math.round((daLam / tong) * 100);
   };
 
-  // Tính toán màu sắc dựa trên tỷ lệ hoàn thành
   const getProgressColor = (completion: number) => {
     if (completion < 30) return "#f5222d";
     if (completion < 70) return "#faad14";
     return "#52c41a";
   };
 
-  // Tính toán màu sắc cho hiệu suất
   const getEfficiencyColor = (thucTe: number, mucTieu: number) => {
     const ratio = thucTe / mucTieu;
     if (ratio < 0.85) return "#f5222d";
@@ -211,7 +236,6 @@ export default function ProductionTable() {
     return "#52c41a";
   };
 
-  // Tính tổng số ngày dự kiến hoàn thành
   const calculateTotalDays = (record: ProductionLine) => {
     const remaining = record.tong - record.daLam;
     const dailyRate =
@@ -222,7 +246,6 @@ export default function ProductionTable() {
     return Math.ceil(remaining / dailyRate);
   };
 
-  // Hàm tạo ô có thể chỉnh sửa
   const renderEditableCell = (
     value: any,
     record: ProductionLine,
@@ -242,7 +265,11 @@ export default function ProductionTable() {
             isNumber ? "text-cyan-300" : "text-orange-300"
           }`}
         >
-          {isNumber ? value.toLocaleString("vi-VN") : value}
+          {isNumber
+            ? field === "heSoCong"
+              ? value
+              : value.toLocaleString("vi-VN")
+            : value}
         </span>
         {isEditing ? (
           <input
@@ -279,7 +306,6 @@ export default function ProductionTable() {
     );
   };
 
-  // Định nghĩa cột cho bảng với độ rộng cố định
   const columns = [
     {
       title: <span className="font-bold text-xl">Bảng</span>,
@@ -376,7 +402,6 @@ export default function ProductionTable() {
           >
             <div className="flex items-center justify-center gap-2">
               {renderEditableCell(days, record, "duKienNgay", "w-16 text-xl")}
-              {/* <div className="text-gray-400 text-xs">ngày</div> */}
             </div>
           </Tooltip>
         );
@@ -402,7 +427,6 @@ export default function ProductionTable() {
       render: (value: number, record: ProductionLine) => (
         <div className="flex items-center justify-center gap-2">
           {renderEditableCell(value, record, "gioLamViec", "w-16 text-lg")}
-          {/* <div className="text-gray-400 text-lg">giờ/ngày</div> */}
         </div>
       ),
       width: 100,
@@ -432,6 +456,46 @@ export default function ProductionTable() {
           </div>
         );
       },
+      width: 100,
+      className: "column-width-100",
+    },
+    {
+      title: <span className="font-bold text-xl">Hệ số cộng</span>,
+      dataIndex: "heSoCong",
+      key: "heSoCong",
+      align: "center",
+      render: (value: number, record: ProductionLine) => (
+        <div className="flex items-center justify-center gap-2">
+          {renderEditableCell(value, record, "heSoCong", "w-16 text-lg")}
+        </div>
+      ),
+      width: 100,
+      className: "column-width-100",
+    },
+    {
+      title: <span className="font-bold text-xl">Chế độ</span>,
+      dataIndex: "cheDoHoatDong",
+      key: "cheDoHoatDong",
+      align: "center",
+      render: (mode: "auto" | "manual", record: ProductionLine) => (
+        <div className="flex items-center justify-center gap-2">
+          <Tooltip
+            title={
+              mode === "auto"
+                ? "Chuyển sang chế độ thủ công"
+                : "Chuyển sang chế độ tự động"
+            }
+          >
+            <Switch
+              checked={mode === "auto"}
+              onChange={(checked) => handleToggleMode(record.id, checked)}
+              checkedChildren="Auto"
+              unCheckedChildren="Manual"
+              style={{ backgroundColor: mode === "auto" ? "#1890ff" : "#555" }}
+            />
+          </Tooltip>
+        </div>
+      ),
       width: 100,
       className: "column-width-100",
     },
@@ -472,56 +536,155 @@ export default function ProductionTable() {
         algorithm: theme.darkAlgorithm,
         token: {
           colorPrimary: "#1890ff",
-          colorBgContainer: "#111827",
+          // Thêm vào: Đặt nền trong suốt để thấy grid 3D
+          colorBgContainer: "transparent",
           colorBgElevated: "#1f2937",
           colorText: "#ffffff",
-          // Làm đậm màu của border
-          colorBorder: "#4B5563", // Thay đổi từ #374151 sang #4B5563 (đậm hơn)
+          colorBorder: "#4B5563",
           borderRadius: 6,
         },
         components: {
           Table: {
-            headerBg: "#1f2937",
+            // Thêm vào: Làm mờ header để thấy grid
+            headerBg: "rgba(31, 41, 55, 0.8)",
             headerColor: "#9ca3af",
             headerSortHoverBg: "#374151",
             rowHoverBg: "rgba(55, 65, 81, 0.5)",
-            colorBgContainer: "#111827",
-            // Tăng độ dày của border
-            lineWidth: 2, // Thay đổi từ mặc định (thường là 1px) thành 2px
-            // Làm đậm màu sắc của border
-            borderColor: "#4B5563", // Thay đổi sang màu border đậm hơn
+            // Thêm vào: Nền trong suốt cho bảng
+            colorBgContainer: "transparent",
+            lineWidth: 2,
+            borderColor: "#4B5563",
             headerBorderRadius: 0,
-            // Thêm style cho border cell
-            cellPaddingBlock: 12, // Tăng padding để các ô rộng hơn
-            cellBorderColor: "#4B5563", // Màu đường viền cell đậm hơn
+            cellPaddingBlock: 12,
+            cellBorderColor: "#4B5563",
             fontSize: 18,
           },
         },
       }}
     >
       <div
-        className={`w-full h-screen flex flex-col p-3 gap-2 bg-gradient-to-b from-gray-900 to-gray-800
+        // Thêm vào: Thêm "relative overflow-hidden" để quản lý grid background
+        className={`w-full  flex flex-col p-3 gap-2 relative overflow-hidden
                   ${
                     !isConnected && counter % 2 === 0
                       ? `bg-gradient-to-b from-[#991b1b] to-[#7f1d1d]`
-                      : ``
-                  }
-                  `}
+                      : `bg-gradient-to-b from-gray-900 to-gray-800`
+                  }`}
       >
+        {/* Thêm vào: 3D Background Grid with Perspective Effect */}
         <div
-          className={`text-center py-3 ${
-            !isConnected
-              ? "text-white"
-              : "text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300"
-          }`}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            perspective: "9000px",
+            transformStyle: "preserve-3d",
+            zIndex: 0,
+            overflow: "hidden",
+            height: "100vh",
+            width: "100vw",
+            pointerEvents: "none",
+          }}
         >
-          <div className="text-3xl font-bold tracking-wider mb-1">
-            {!isConnected ? `MẤT KẾT NỐI ĐẾN SERVER` : `BẢNG CÀI ĐẶT SẢN XUẤT`}
+          {/* Thêm vào: 3D Grid Floor */}
+          <div
+            style={{
+              position: "absolute",
+              width: "400%",
+              height: "400%",
+              top: "-150%",
+              left: "-150%",
+              backgroundImage: `
+                linear-gradient(to right, rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(59, 130, 246, 0.1) 1px, transparent 1px)
+              `,
+              backgroundSize: "40px 40px",
+              transform: "rotateX(60deg) translateZ(-100px)",
+              transformOrigin: "center",
+              animation: "gridMove 30s linear infinite",
+            }}
+          />
+
+          {/* Thêm vào: Ambient Light Effect */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background:
+                "radial-gradient(circle at 50% 50%, rgba(66, 153, 225, 0.15) 0%, rgba(17, 24, 39, 0) 70%)",
+            }}
+          />
+
+          {/* Thêm vào: Glowing Particles */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background:
+                "radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, rgba(17, 24, 39, 0) 20%), radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.15) 0%, rgba(17, 24, 39, 0) 25%), radial-gradient(circle at 40% 90%, rgba(59, 130, 246, 0.15) 0%, rgba(17, 24, 39, 0) 30%), radial-gradient(circle at 90% 30%, rgba(16, 185, 129, 0.15) 0%, rgba(17, 24, 39, 0) 20%)",
+            }}
+          />
+        </div>
+
+        {/* Thêm vào: Thêm "relative z-10" để nội dung nằm trên grid */}
+        <div className="relative z-10">
+          <div
+            className={`text-center py-3 ${
+              !isConnected
+                ? "text-white"
+                : "text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300"
+            }`}
+          >
+            <div className="text-3xl font-bold tracking-wider mb-1">
+              {!isConnected
+                ? `MẤT KẾT NỐI ĐẾN SERVER`
+                : `BẢNG CÀI ĐẶT SẢN XUẤT`}
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-auto rounded-lg shadow-xl">
+            <Table
+              dataSource={productionData}
+              columns={columns}
+              bordered
+              size="middle"
+              pagination={false}
+              rowKey="id"
+              className={!isConnected ? "opacity-80" : ""}
+              rowClassName={(record, index) =>
+                `${index % 2 === 0 ? "bg-gray-800 bg-opacity-30" : ""} 
+                 transition-all duration-300`
+              }
+              sticky
+              scroll={{ x: "max-content" }}
+              tableLayout="fixed"
+              style={{
+                border: "2px solid #4B5563",
+                borderCollapse: "collapse",
+                width: "auto",
+              }}
+            />
           </div>
         </div>
 
         <style jsx global>{`
-          /* CSS để đảm bảo độ rộng cột được giữ nguyên */
+          // Thêm vào: Keyframes cho animation của grid
+          @keyframes gridMove {
+            0% {
+              background-position: 0 0;
+            }
+            100% {
+              background-position: 40px 40px;
+            }
+          }
           .column-width-40 {
             width: 40px !important;
             min-width: 40px !important;
@@ -552,12 +715,10 @@ export default function ProductionTable() {
             min-width: 140px !important;
             max-width: 140px !important;
           }
-          /* Đảm bảo table không bị co lại */
           .ant-table table {
             table-layout: fixed !important;
             width: auto !important;
           }
-          /* Ngăn không cho các cột thay đổi kích thước khi resize window */
           .ant-table-thead > tr > th,
           .ant-table-tbody > tr > td {
             white-space: nowrap;
@@ -565,31 +726,6 @@ export default function ProductionTable() {
             text-overflow: ellipsis;
           }
         `}</style>
-
-        <div className="flex-1 overflow-auto rounded-lg shadow-xl">
-          <Table
-            dataSource={productionData}
-            columns={columns}
-            bordered
-            size="middle"
-            pagination={false}
-            rowKey="id"
-            className={!isConnected ? "opacity-80" : ""}
-            rowClassName={(record, index) =>
-              `${index % 2 === 0 ? "bg-gray-800 bg-opacity-30" : ""} 
-               transition-all duration-300`
-            }
-            sticky
-            scroll={{ x: "max-content" }}
-            // Thiết lập table-layout: fixed để đảm bảo độ rộng cột không thay đổi
-            tableLayout="fixed"
-            style={{
-              border: "2px solid #4B5563", // Border ngoài cùng đậm hơn
-              borderCollapse: "collapse",
-              width: "auto", // Đảm bảo bảng không bị co lại
-            }}
-          />
-        </div>
       </div>
     </ConfigProvider>
   );

@@ -170,7 +170,7 @@ export default function ProductionDashboard() {
         padding: [10, 0, 0, 0],
       },
       splitLine: {
-        show: true,
+        show: false,
         lineStyle: {
           color: "rgba(255, 255, 255, 0.08)",
           type: "dashed",
@@ -188,13 +188,13 @@ export default function ProductionDashboard() {
       axisLabel: {
         color: "#fff",
       },
-      // splitLine: {
-      //   show: true,
-      //   lineStyle: {
-      //     color: "rgba(255, 255, 255, 0.08)",
-      //     type: "dashed",
-      //   },
-      // },
+      splitLine: {
+        show: false,
+        lineStyle: {
+          color: "rgba(255, 255, 255, 0.08)",
+          type: "dashed",
+        },
+      },
     },
     series: [
       {
@@ -530,7 +530,7 @@ export default function ProductionDashboard() {
       <div className="flex-1 grid grid-cols-3 gap-4 relative z-10">
         {/* Biểu đồ Target vs Actual - Bỏ nền và để trong suốt */}
         <div
-          className="col-span-2 p-4 rounded-lg flex flex-col"
+          className="col-span-2 p-4 rounded-lg flex flex-col "
           style={{
             height: "calc(100vh - 200px)",
             background: "transparent", // Nền hoàn toàn trong suốt
@@ -539,7 +539,7 @@ export default function ProductionDashboard() {
             transform: "translateZ(5px)",
           }}
         >
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-4 rounded-lg">
             <h2 className="text-xl font-semibold flex items-center">
               <FaTachometerAlt className="mr-2 text-blue-400" />
               <span
