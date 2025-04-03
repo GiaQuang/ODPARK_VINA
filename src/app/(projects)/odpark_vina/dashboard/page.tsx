@@ -143,7 +143,8 @@ export default function ProductionDashboard() {
     legend: {
       data: ["Mục tiêu", "Thực hiện"],
       textStyle: { color: "#fff" },
-      right: 10,
+      // right: 10,
+      left: "center",
       top: 0,
     },
     grid: {
@@ -167,7 +168,7 @@ export default function ProductionDashboard() {
         color: "#fff",
         fontWeight: "bold",
         fontSize: 12,
-        padding: [10, 0, 0, 0],
+        padding: [12, 0, 0, 0],
       },
       splitLine: {
         show: false,
@@ -289,9 +290,9 @@ export default function ProductionDashboard() {
               linear-gradient(to bottom, rgba(59, 130, 246, 0.1) 1px, transparent 1px)
             `,
             backgroundSize: "40px 40px",
-            transform: "rotateX(60deg) translateZ(-100px)",
+            transform: "rotateX(65deg) translateZ(-100px)",
             transformOrigin: "center",
-            animation: "gridMove 30s linear infinite",
+            // animation: "gridMove 30s linear infinite",
           }}
         />
 
@@ -532,9 +533,9 @@ export default function ProductionDashboard() {
         <div
           className="col-span-2 p-4 rounded-lg flex flex-col "
           style={{
-            height: "calc(100vh - 200px)",
+            height: "calc(100vh - 240px)",
             background: "transparent", // Nền hoàn toàn trong suốt
-            border: "1px solid rgba(255, 255, 255, 0.1)", // Chỉ giữ viền mỏng
+            border: "2px solid rgba(59, 130, 246, 0.8)", // Xanh dương sáng
             boxShadow: "none",
             transform: "translateZ(5px)",
           }}
@@ -598,7 +599,7 @@ export default function ProductionDashboard() {
                 ...lineChartOption,
                 backgroundColor: "transparent", // Đảm bảo biểu đồ có nền trong suốt
               }}
-              style={{ height: "100%", width: "100%" }}
+              style={{ height: "105%", width: "100%" }}
             />
           </div>
         </div>
@@ -607,8 +608,9 @@ export default function ProductionDashboard() {
         <div
           className="p-4 rounded-lg flex flex-col"
           style={{
+            height: "calc(100vh - 240px)",
             background: "transparent", // Nền hoàn toàn trong suốt
-            border: "1px solid rgba(255, 255, 255, 0.1)", // Chỉ giữ viền mỏng
+            border: "2px solid rgba(59, 130, 246, 0.8)", // Xanh dương sáng
             boxShadow: "none",
             transform: "translateZ(5px)",
           }}
@@ -646,11 +648,10 @@ export default function ProductionDashboard() {
                   pagination={false}
                   scroll={{ y: "calc(100vh - 350px)" }}
                   className="production-table"
-                  rowClassName={
-                    (record, index) =>
-                      index % 2 === 0
-                        ? "bg-opacity-30 even-row" // Giảm độ mờ
-                        : "bg-opacity-20 odd-row" // Giảm độ mờ
+                  rowClassName={(record, index) =>
+                    index % 2 === 0
+                      ? "bg-opacity-30 even-row border-b border-blue-400" // Thêm viền dưới xanh
+                      : "bg-opacity-20 odd-row border-b border-blue-300"
                   }
                   style={{
                     background: "transparent",
